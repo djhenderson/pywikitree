@@ -5,7 +5,11 @@ The following illustrates retrieving a public person
 without logging on to WikiTree using Python 3. When using
 Python 2, all returned strings are unicode.
 
+<<<<<<< HEAD
 `
+=======
+`python
+>>>>>>> origin/master
 >>> import wt_apps, pprint
 >>> pp = pprint.PrettyPrinter(indent=2, width=120, depth=4)
 >>> apps = wt_apps.WT_Apps()
