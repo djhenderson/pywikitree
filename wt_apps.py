@@ -1,6 +1,15 @@
 #! python3
 # -*- coding:utf-8 -*-
 
+"""
+wt_apps.py provides an interface to the WikiTree APPS API.
+
+This code is intended to, and currently does work with Python 2.7 and
+Python 3.4, 3.5 and 3.6.
+
+It has been tested with 2.7.10 and 3.4.3 on cygwin
+and Python 2.7.12, 3.5.2, and 3.6.0b1 on Windows 7.
+"""
 from __future__ import print_function, unicode_literals
 
 import pprint
