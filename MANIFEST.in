@@ -1,0 +1,8 @@
+# Include the README.md file
+include *.md
+
+# Include the license file
+include LICENSE
+
+# Include tests and Python sources
+recursive-include tests *.py

@@ -1,7 +1,6 @@
-# pywikitree
-Python interface to the WikiTree API
+This package is a Python interface to the WikiTree Apps API
 
-The following illustrates retrieving a public person
+The following console session illustrates retrieving a public person
 without logging on to WikiTree using Python 3. When using
 Python 2, all returned strings are unicode.
 
@@ -77,7 +76,7 @@ Python 2, all returned strings are unicode.
         'user_name': 'Côté-179'}]
     >>>
 
-Currently, the only documentation is the in docstrings,
-http://www.wikitree.com/wiki/API_Documentation
-and
-http://apps.wikitree.com/apps/
+Currently, documentation is contained in docstrings.
+Documentation for the WikiTree API is found at the http://apps.wikitree.com/apps/ page
+which references the more detailed http://www.wikitree.com/wiki/API_Documentation
+page.
