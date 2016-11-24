@@ -7,12 +7,12 @@ wt_apps.py provides an interface to the WikiTree APPS API.
 This code is intended to, and currently does work with Python 2.7 and
 Python 3.4, 3.5 and 3.6.
 
-It has been tested with 2.7.10 and 3.4.3 on cygwin
-and Python 2.7.12, 3.5.2, and 3.6.0b1 on Windows 7.
+It has been tested with 2.7.10 and 3.4.5 on cygwin
+and Python 2.7.12, 3.5.2, and 3.6.0b4 on Windows 7.
 """
 from __future__ import print_function, unicode_literals
 
-# import pprint
+import pprint
 import logging
 import requests
 from simplejson.scanner import JSONDecodeError
@@ -31,6 +31,8 @@ logging.basicConfig()  # you need to initialize logging, otherwise you will not 
 # requests_log = logging.getLogger("requests.packages.urllib3")
 # requests_log.setLevel(logging.DEBUG)
 # requests_log.propagate = True
+
+_pp = pprint.PrettyPrinter(indent=2, width=120, depth=4)
 
 
 class WT_Apps(object):
@@ -90,6 +92,22 @@ class WT_Apps(object):
                 print("WARNING: invalid default_format ignored:" + repr(default_format))
                 self._format = self._default_format = "json"
 
+        if verbosity:
+            self._verbosity = int(verbosity)
+
+        self._init_session()
+
+        if not type(self).__privacy_init:
+            self.getPrivacyLevels(_initialize=True)
+
+    def _init_session(self):
+        """_init_session() is a private method to perfom command
+        session initializaton actions.
+        As this creates a session without a logged in user, only
+        public profile content is available, until a login is
+        performed on this session.
+        """
+
         s = self._session = requests.Session()
 
         s.headers['Accept-charset'] = "utf-8"
@@ -100,35 +118,48 @@ class WT_Apps(object):
             s.headers['Accept'] = "application/xml"
             s.headers['Accept'] = "text/xml"
         else:
-            raise RuntimeError("Invalid format: " + repr(self._format))
-
-        if not type(self).__privacy_init:
-            self.getPrivacyLevels(_initialize=True)
+            raise ValueError("Invalid format: " + repr(self._format))
 
     def _req(self, data, headers={}):
-        """_req() is a private function to perform the
+        """_req() is a private method to perform the
         https request to the WikiTree Apps API.
         It constructs and posts the request,
         and checks the status of the result.
         """
 
         if self._verbosity > 1:
-            print("url:", self._url)
-            print("data:", data)
+            # print("url:", self._url)
+            # print("data:");
+            _pp.pprint(data)
+
+        if self._session is None:
+            self._init_session()
 
         r = self._session.post(self._url, data=data)
 
         if r.status_code != requests.codes.ok:
             print("url:", self._url)
-            print("data:", data)
+            print("data:");
+            _pp.pprint(data)
             r.raise_for_status()
+
+        return r
+
+    def getHelp(self):
+        """getHelp()
+        """
+
+        data = {"action": "help"}
+
+        r = self._req(data)
 
         return r
 
     def login(self, email, password):
         """login() logs you into WikiTree using your email address and password
         The email address and password are the same as you use to log into
-        your WikiTree profile and private web pages."""
+        your WikiTree profile and private web pages.
+        """
 
         data = {"action": "login", "email": email, "password": password}
 
@@ -138,7 +169,11 @@ class WT_Apps(object):
 
     def logout(self):
         """logout() logs you out of WikiTree.
-        No further requests can be performed (without a login ?).
+        The API has no logout function. The only thing we can do
+        is remove the session, which automatically retained our
+        login credentials and authentication details.
+        No further requests can be performed using the current
+        login credentials.
         """
 
         self._session = None
@@ -171,7 +206,7 @@ class WT_Apps(object):
 
         for k, v in kwargs:
             if k not in self.__privacyLevelsOptions:
-                print("WARNING: invalid paramter to getBio:", repr(k))
+                print("WARNING: invalid parameter to getPrivacyLevels:", repr(k))
                 del kwargs[k]
 
         if len(kwargs) > 0:
@@ -184,18 +219,18 @@ class WT_Apps(object):
 
         if _initialize:
             try:
+                # make sure to work with class data, not instance data
                 type(self).__Privacy2Levels = {}
                 type(self).__Levels2Privacy = ()
                 j = r.json()
                 type(self).__Privacy2Levels = j[0].copy()
                 type(self).__Levels2Privacy = {v: k for k, v in type(self).__Privacy2Levels.items()}
+                type(self).__privacy_init = True
             except JSONDecodeError as e:
                 print("Exception(ignored):", e)
             except Exception as e:
                 print("Exception:", e)
                 raise
-
-            type(self).__privacy_init = True
 
         return r
 
@@ -232,7 +267,10 @@ class WT_Apps(object):
     }
 
     def getWatchlist(self, **kwargs):
-        """getWatchlist() retrieves your WikiTree watchlist."""
+        """getWatchlist() retrieves your WikiTree watchlist.
+        See the WT app documentation for options to filter
+        the watchlist, order it, and page through it.
+        """
 
         data = {"action": "getWatchlist"}
 
@@ -271,8 +309,11 @@ class WT_Apps(object):
         return r
 
     def getAncestors(self, key, depth=None):
-        """getAncestors() retrieves the ancestors of a WikiTree person."""
-        data = {"action": "getAncestors", "key": key}
+        """getAncestors() retrieves the ancestors of a WikiTree person.
+        Default depth is 5.
+        """
+
+        data = {"action": "getAncestors", "key": key, "depth": 5}
 
         if depth:
             data["depth"] = depth
@@ -287,9 +328,13 @@ class WT_Apps(object):
     __relativeChoices = ('getParents', 'getSpouses', 'getSiblings', 'getChildren',)
 
     def getRelatives(self, keys, **kwargs):
-        """getRelatives() retrieves the relatives of a WikiTree person."""
+        """getRelatives() retrieves the relatives of a WikiTree person.
+        """
+
+        # for ease of use, convert a single key into a list of keys
         if not isinstance(keys, (list, tuple, set, frozenset,)):
             keys = [keys]
+
         data = {"action": "getRelatives", "keys": keys}
 
         for k in kwargs.keys():
@@ -307,8 +352,8 @@ class WT_Apps(object):
         return r
 
     def getPersonFSConnections(self, key):
-        """getPersonFSConnections() retrieves the links between a WikiTree
-        person and FamilySearch person(s).
+        """getPersonFSConnections() retrieves the links between
+        a WikiTree person and FamilySearch person(s).
         """
 
         data = {"action": "getPersonFSConnections", "key": key}
@@ -318,4 +363,4 @@ class WT_Apps(object):
         return r
 
 if __name__ == "__main__":
-    print("no unit tests")
+    print("no unit tests here. see ./tests")

@@ -8,23 +8,73 @@ import pprint
 # import simplejson as json
 from simplejson.scanner import JSONDecodeError
 
-
 try:
     from wt_apps import WT_Apps
 except ImportError:
     print("Warning: modifing sys.path")
-    import sys
-    sys.path.append("..")  # assume running in pywikitree/tests
+    import sys, os
+    if os.path.exists("wt_apps.py"):
+        sys.path.insert(0, ".")  # assume running in pywikitree
+    else:
+        sys.path.append("..")  # assume running in pywikitree/tests
     from wt_apps import WT_Apps
 
-pp = pprint.PrettyPrinter(indent=4, width=120, depth=4)
+pp = pprint.PrettyPrinter(indent=2, width=120, depth=4)
+
 url = "https://apps.wikitree.com/api.php"
 
-apps = WT_Apps(url=url, default_format="json")  # json | xmlfm
+apps = WT_Apps(url=url, default_format="json", verbosity=2)  # json | xmlfm
 
-# 6
-try_key = "Côté-179"  # [Jean Côté]
-try_keys = [try_key]  # [Jean Côté]
+try_key = "Henderson-6225"  # Thomas Henderson
+#try_key = "Côté-179"  # Jean Côté
+
+try_keys = [try_key]
+
+blank_fields = [f.strip() for f in """\
+BirthDate, BirthLocation, BirthNamePrivate,
+Creator,
+DeathDate, DeathLocation,
+Father, FirstName,
+Gender,
+Id, IsLiving,
+LastNameAtBirth, LastNameCurrent, LastNameOther, LongNamePrivate,
+Manager, MiddleName, Mother,
+Name, Nicknames,
+Photo, PhotoData, Prefix,
+RealName,
+ShortName, Suffix
+""".split(",")]
+
+star_fields = [f.strip() for f in """\
+BirthDate, BirthDateDecade, BirthLocation, BirthName, BirthNamePrivate,
+Children, Creator,
+DeathDate, DeathDateDecade, DeathLocation,
+Father, FirstName,
+Gender,
+Id, IsLiving,
+LastNameAtBirth, LastNameCurrent, LastNameOther, LongName, LongNamePrivate,
+Manager, MiddleName, Mother,
+Name, Nicknames,
+Parents, Photo, PhotoData, Prefix,
+Privacy, Privacy_IsAtLeastPublic, Privacy_IsOpen, Privacy_IsPrivate,
+Privacy_IsPublic, Privacy_IsSemiPrivate, Privacy_IsSemiPrivateBio,
+RealName,
+ShortName, Siblings, Spouses, Suffix
+""".split(",")]
+
+all_fields = [f.strip() for f in """\
+Id, Name, FirstName, MiddleName, LastNameAtBirth, LastNameCurrent,
+Nicknames, LastNameOther, RealName, Prefix, Suffix,
+Gender, BirthDate, DeathDate, BirthLocation, DeathLocation,
+BirthDateDecade, DeathDateDecade, Photo, IsLiving, Privacy,
+Mother, Father, Parents, Children, Siblings, Spouses,
+Derived.ShortName, Derived.BirthNamePrivate, Derived.LongNamePrivate,
+Creator, Manager, Touched
+""".split(",")]
+
+rel_fields = "Children,Parents,Siblings,Spouses".split(',')
+
+space_fields = "Id,IsSpace,PageId,Privacy,Timestamp,Title".split(",")
 
 
 def header(msg):
@@ -35,14 +85,37 @@ def hr():
     print("\n%s\n" % ("=" * 80,))
 
 
+def try_help():
+    header("help")
+
+    r = apps.getHelp()
+    hr()
+
+    print("r.headers:", type(r.headers))
+    pp.pprint(dict(r.headers))
+    pp.pprint(r.text)
+    hr()
+
+    try:
+        j = r.json()
+        pp.pprint(j)
+    except JSONDecodeError as e:
+        print("JSONDecodeError:", type(e), e)
+        pp.pprint(r)
+    except Exception as e:
+        print("Exception:", type(e), e)
+        raise
+    hr()
+
+
 def try_login():
     header("login")
 
     # provide your own WikiTree.com credentials
-    email = "WikiTreeUser"
-    password = "WikiTreePassword"
+    wt_user = os.environ.get("WT_USER", "WT_USER")
+    wt_pass = os.environ.get("WT_PASS", "WT_PASS")
 
-    r = apps.login(email, password)
+    r = apps.login(wt_user, wt_pass)
     hr()
 
     print("r.headers:", type(r.headers))
@@ -51,7 +124,6 @@ def try_login():
 
     try:
         j = r.json()
-        # print("r.json():", type(j))
         pp.pprint(j)
     except JSONDecodeError as e:
         print("JSONDecodeError:", type(e), e)
@@ -64,10 +136,13 @@ def try_login():
 def try_getPerson():
 
     header("getPerson")
-    fields = "*"
+
+    # fields = ''
+    # fields = "*"
+    fields = ','.join(all_fields)
 
     r = apps.getPerson(try_key, fields)
-    # hr()
+    hr()
 
     try:
         j = r.json()
@@ -83,8 +158,8 @@ def try_getPerson():
 
     # print("j:", type(j))
     # print("j[]:", [type(jj) for jj in j])
-    # print("j[0].keys()", list(j[0].keys()))
-    # print("type(j[0].values())", [type(jj) for jj in j[0].values()])
+    print("j[0].keys()", list(j[0].keys()))
+    print('j[0]["person"].keys()', sorted(j[0]["person"].keys()))
     pp.pprint(j)
     hr()
 
@@ -97,7 +172,6 @@ def try_getPrivacyLevels():
 
     try:
         j = r.json()
-        # print("r.json():", type(j))
         pp.pprint(j)
     except JSONDecodeError as e:
         print("JSONDecodeError:", e)
@@ -117,7 +191,6 @@ def try_getBio():
 
     try:
         j = r.json()
-        # print("r.json():", type(j))
         pp.pprint(j)
     except JSONDecodeError as e:
         print("JSONDecodeError:", e)
@@ -134,9 +207,9 @@ def try_getWatchlist():
         'getSpace': False,
         'onlyLiving': False,
         'excludeLiving': False,
-        'order': '',
+        'order': 'page_touched',
         'offset': 0,
-        'limit': 10,
+        'limit': 4,
     }
 
     r = apps.getWatchlist(**params)
@@ -144,7 +217,6 @@ def try_getWatchlist():
 
     try:
         j = r.json()
-        # print("r.json():", type(j))
         pp.pprint(j)
     except JSONDecodeError as e:
         print("JSONDecodeError:", e)
@@ -162,7 +234,6 @@ def try_getProfile():
 
     try:
         j = r.json()
-        # print("r.json():", type(j))
         pp.pprint(j)
     except JSONDecodeError as e:
         print("JSONDecodeError:", e)
@@ -174,14 +245,13 @@ def try_getProfile():
 
 def try_getAncestors():
     header("getAncestors")
-    depth = 2
+    depth = 1  # 0=self(1), 1+=parent(3), 2+=grandparents(7), 3+=great-grandparents
 
     r = apps.getAncestors(try_key, depth)
     hr()
 
     try:
         j = r.json()
-        # print("r.json():", type(j))
         pp.pprint(j)
     except JSONDecodeError as e:
         print("JSONDecodeError:", e)
@@ -193,7 +263,7 @@ def try_getAncestors():
 
 def try_getAncestorsFields(fields=None):
     header("getAncestors")
-    depth = None
+    depth = 3
 
     r = apps.getAncestors(try_key, depth)
     hr()
@@ -208,11 +278,10 @@ def try_getAncestorsFields(fields=None):
                 name = kk["Name"]
                 longname = kk.get("LongName", kk.get("LongNamePrivate", "[no name]"))
                 longname = longname.replace("  ", " ")
-                print("%-8s %-16s %s" % (wid, name, longname,))
-        hr()
+                print("%9s %-16s %s" % (wid, name, longname,))
 
-        # print("r.json():", type(j))
-        pp.pprint(j)
+        # hr()
+        # pp.pprint(j)
     except JSONDecodeError as e:
         print("JSONDecodeError:", e)
     except Exception as e:
@@ -230,8 +299,7 @@ def try_getRelatives():
 
     try:
         j = r.json()
-        # print("r.json():", type(j))
-        pp = pprint.PrettyPrinter(indent=4, width=120, depth=7)  # note depth
+        pp = pprint.PrettyPrinter(indent=2, width=120, depth=7)  # note depth
         pp.pprint(j)
     except JSONDecodeError as e:
         print("JSONDecodeError:", e)
@@ -244,12 +312,11 @@ def try_getRelatives():
 def try_getPersonFSConnections():
     header("getPersonFSConnections")
 
-    r = apps.getPersonFSConnectio(try_key)
+    r = apps.getPersonFSConnections(try_key)
     hr()
 
     try:
         j = r.json()
-        # print("r.json():", type(j))
         pp.pprint(j)
     except JSONDecodeError as e:
         print("JSONDecodeError:", e)
@@ -260,12 +327,19 @@ def try_getPersonFSConnections():
 
 
 def try_logout():
+    header("logout")
     apps.logout()
+    hr()
 
 if __name__ == '__main__':
 
     def main():
-        # try_login()  #
+        # hr()
+        # print("session headers")
+        # pp.pprint(apps._session.headers)
+        # hr()
+        # try_help()  #
+        try_login()  #
         try_getPerson()  # try_key
         # try_getPrivacyLevels()  #
         # try_getBio()  # try_key
@@ -275,6 +349,6 @@ if __name__ == '__main__':
         # try_getAncestorsFields()  # try_key
         # try_getRelatives()  # try_keys
         # try_getPersonFSConnections()  # try_key
-        # try_logout()  #
+        try_logout()  #
 
     main()
