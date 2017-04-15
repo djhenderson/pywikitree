@@ -9,12 +9,12 @@ http://www.wikitree.com/wiki/API_Documentation
 page.
 
 The following console session illustrates retrieving a public person
-without logging on to WikiTree using Python 3. When using
-Python 2, all returned strings are unicode.
+without logging on to WikiTree, and using Python 3.
+When using Python 2, all returned strings are unicode.
 
 Using python 3, get setup to use the API
 
-    >>> import wt_apps, pprint
+    >>> import wt_apps, pprint, os
     >>> pp = pprint.PrettyPrinter(indent=2, width=120, depth=4)
     >>> apps = wt_apps.WT_Apps()
     >>>
@@ -50,7 +50,6 @@ Retrieve a well known person.
                                   '7938555': {...},
                                   '7938575': {...},
                                   '8735045': {...}},
-                    'Creator': 3833213,
                     'DeathDate': '1722-03-26',
                     'DeathDateDecade': '1720s',
                     'DeathLocation': "L'Ange-Gardien, Montmorency, Qc, Canada",
@@ -131,7 +130,6 @@ Get ancestors, depth=1 gives person and parents, depth=2 adds grandparents, etc.
                          'BirthDateDecade': '1640s',
                          'BirthLocation': 'Paroisse Notre Dame, Québec, Québec',
                          'BirthNamePrivate': 'Jean Côté',
-                         'Creator': 3833213,
                          'DeathDate': '1722-03-26',
                          'DeathDateDecade': '1720s',
                          'DeathLocation': "L'Ange-Gardien, Montmorency, Qc, Canada",
@@ -168,7 +166,6 @@ Get ancestors, depth=1 gives person and parents, depth=2 adds grandparents, etc.
                          'BirthDateDecade': '1600s',
                          'BirthLocation': None,
                          'BirthNamePrivate': 'Jean Côté',
-                         'Creator': None,
                          'DeathDate': '1661-03-27',
                          'DeathDateDecade': '1660s',
                          'DeathLocation': None,
@@ -184,7 +181,7 @@ Get ancestors, depth=1 gives person and parents, depth=2 adds grandparents, etc.
                          'LongNamePrivate': 'Jean Côté',
                          'Manager': 2046555,
                          'MiddleName': '',
-                         'Mother': 5182831,
+                         'Mother': 2569903,
                          'Name': 'Côté-180',
                          'Nicknames': None,
                          'Photo': 'Aubin-42-1.jpg',
@@ -200,12 +197,11 @@ Get ancestors, depth=1 gives person and parents, depth=2 adds grandparents, etc.
                          'RealName': 'Jean',
                          'ShortName': 'Jean Côté',
                          'Suffix': '',
-                         'Touched': '20161124012931'},
+                         'Touched': '20161215000928'},
                        { 'BirthDate': '1621-03-23',
                          'BirthDateDecade': '1620s',
                          'BirthLocation': None,
                          'BirthNamePrivate': 'Anne Martin',
-                         'Creator': None,
                          'DeathDate': '1684-12-04',
                          'DeathDateDecade': '1680s',
                          'DeathLocation': None,
@@ -237,7 +233,7 @@ Get ancestors, depth=1 gives person and parents, depth=2 adds grandparents, etc.
                          'RealName': 'Anne',
                          'ShortName': 'Anne Martin',
                          'Suffix': '',
-                         'Touched': '20161124014736'}],
+                         'Touched': '20161101230248'}],
         'status': 0,
         'user_name': 'Côté-179'}]
     >>>
@@ -253,7 +249,6 @@ Get relatives, just the spouses and siblings in this case.
                                  'BirthDateDecade': '1640s',
                                  'BirthLocation': 'Paroisse Notre Dame, Québec, Québec',
                                  'BirthNamePrivate': 'Jean Côté',
-                                 'Creator': 3833213,
                                  'DeathDate': '1722-03-26',
                                  'DeathDateDecade': '1720s',
                                  'DeathLocation': "L'Ange-Gardien, Montmorency, Qc, Canada",
@@ -301,12 +296,37 @@ Try to retrieve the FamilySearch connections. This will fail because we are not 
     [{'status': 'Permission denied', 'user_name': 'Côté-179'}]
     >>>
 
-Illustrate loggin on. Use an invalid password, so as to see the error result.
+Illustrate loggin failure.
+Use an invalid password, so as to see the error result.
 
-    >>> r = apps.login("Henderson-6191", "invalid password")
+    >>> r = apps.login("MissingSurname-1", "InvalidPassword")
     >>> j = r.json()
     >>> pp.pprint(j)
     {'login': {'result': 'Illegal', 'wait': 1}}
+    >>>
+
+Try logging in with user and password from environment.
+Provide your own WikiTree.com credentials.
+Use "SET WT_USER=your_user_id" or "export WT_USER=your_user_id", etc.
+
+    >>> wt_user = os.environ.get("WT_USER", "WT_USER")
+    >>> wt_pass = os.environ.get("WT_PASS", "WT_PASS")
+
+    >>> r = apps.login(wt_user, wt_pass)
+    >>> j = r.json()
+    >>> del j['login']['token']  # hide the token (it won't match)
+    >>> del j['login']['userid'] # hide the userid (it won't match)
+    >>> del j['login']['username'] # hide the userid (it won't match)
+    >>> pp.pprint(j)
+    {'login': {'result': 'Success'}}
+    >>>
+
+Try to retrieve the FamilySearch connections while logged in.
+
+    >>> r = apps.getPersonFSConnections("Côté-179")
+    >>> j = r.json()
+    >>> pp.pprint(j)
+    [{'status': 'Permission denied', 'user_name': 'Côté-179'}]
     >>>
 
 Illustrate logging off.
