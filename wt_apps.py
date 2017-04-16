@@ -4,16 +4,24 @@
 """
 wt_apps.py provides an interface to the WikiTree APPS API.
 
-This code is intended to, and currently does work with Python 2.7 and
+This code is designed to work with
+Python 2.7
+and
 Python 3.4, 3.5 and 3.6.
 
-It has been tested with 2.7.10 and 3.4.5 on cygwin
-and Python 2.7.12, 3.5.2, and 3.6.0b4 on Windows 7.
+It has been tested
+on cygwin
+    with python2 2.7.13 and python3 3.6.1
+and on Windows 7
+    with python 2.7.13, and python 3.6.1
 """
+
 from __future__ import print_function, unicode_literals
 
-import pprint
+__version__ = "0.1.3"
+
 import logging
+import pprint
 import requests
 from simplejson.scanner import JSONDecodeError
 
@@ -26,7 +34,8 @@ from simplejson.scanner import JSONDecodeError
 #     from httplib import HTTPConnection
 # HTTPConnection.debuglevel = 1
 
-logging.basicConfig()  # you need to initialize logging, otherwise you will not see anything from requests
+# you need to initialize logging, otherwise you will not see anything from requests
+logging.basicConfig()
 # logging.getLogger().setLevel(logging.DEBUG)
 # requests_log = logging.getLogger("requests.packages.urllib3")
 # requests_log.setLevel(logging.DEBUG)
@@ -128,8 +137,8 @@ class WT_Apps(object):
         """
 
         if self._verbosity > 1:
-            # print("url:", self._url)
-            # print("data:");
+            print("url:", self._url)
+            print("data:", end=' ')
             _pp.pprint(data)
 
         if self._session is None:
@@ -139,7 +148,7 @@ class WT_Apps(object):
 
         if r.status_code != requests.codes.ok:
             print("url:", self._url)
-            print("data:");
+            print("data:", end=' ')
             _pp.pprint(data)
             r.raise_for_status()
 
@@ -149,7 +158,7 @@ class WT_Apps(object):
         """getHelp()
         """
 
-        data = {"action": "help"}
+        data = {"action": "help", "format": self._format}
 
         r = self._req(data)
 
@@ -161,7 +170,7 @@ class WT_Apps(object):
         your WikiTree profile and private web pages.
         """
 
-        data = {"action": "login", "email": email, "password": password}
+        data = {"action": "login", "format": self._format, "email": email, "password": password}
 
         r = self._req(data)
 
@@ -173,7 +182,7 @@ class WT_Apps(object):
         is remove the session, which automatically retained our
         login credentials and authentication details.
         No further requests can be performed using the current
-        login credentials.
+        login credentials. You will be an anonymous guest.
         """
 
         self._session = None
@@ -186,7 +195,7 @@ class WT_Apps(object):
         if fields is None:
             fields = ""
 
-        data = {"action": "getPerson", "key": key, "fields": fields}
+        data = {"action": "getPerson", "format": self._format, "key": key, "fields": fields}
 
         r = self._req(data)
 
@@ -202,7 +211,7 @@ class WT_Apps(object):
         Privacy2Level() and Level2Privacy() class methods.
         """
 
-        data = {"action": "getPrivacyLevels"}
+        data = {"action": "getPrivacyLevels", "format": self._format}
 
         for k, v in kwargs:
             if k not in self.__privacyLevelsOptions:
@@ -240,7 +249,7 @@ class WT_Apps(object):
         """getBio() retrieves the Biography for a WikiTree person profile.
         """
 
-        data = {"action": "getBio", "key": key}
+        data = {"action": "getBio", "format": self._format, "key": key}
 
         for k, v in kwargs:
             if k not in self.__bioOptions:
@@ -272,7 +281,7 @@ class WT_Apps(object):
         the watchlist, order it, and page through it.
         """
 
-        data = {"action": "getWatchlist"}
+        data = {"action": "getWatchlist", "format": self._format}
 
         for k, v in list(kwargs.items()):
             if k not in self.__watchlistOptions:
@@ -302,7 +311,7 @@ class WT_Apps(object):
         or a numeric space id.
         """
 
-        data = {"action": "getProfile", "key": key}
+        data = {"action": "getProfile", "format": self._format, "key": key}
 
         r = self._req(data)
 
@@ -313,7 +322,7 @@ class WT_Apps(object):
         Default depth is 5.
         """
 
-        data = {"action": "getAncestors", "key": key, "depth": 5}
+        data = {"action": "getAncestors", "format": self._format, "key": key, "depth": 5}
 
         if depth:
             data["depth"] = depth
@@ -335,7 +344,7 @@ class WT_Apps(object):
         if not isinstance(keys, (list, tuple, set, frozenset,)):
             keys = [keys]
 
-        data = {"action": "getRelatives", "keys": keys}
+        data = {"action": "getRelatives", "format": self._format, "keys": keys}
 
         for k in kwargs.keys():
             if k not in self.__relativeChoices:
@@ -356,11 +365,12 @@ class WT_Apps(object):
         a WikiTree person and FamilySearch person(s).
         """
 
-        data = {"action": "getPersonFSConnections", "key": key}
+        data = {"action": "getPersonFSConnections", "format": self._format, "key": key}
 
         r = self._req(data)
 
         return r
+
 
 if __name__ == "__main__":
     print("no unit tests here. see ./tests")
