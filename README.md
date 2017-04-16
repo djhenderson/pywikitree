@@ -17,60 +17,46 @@ Using python 3, get setup to use the API
     >>> import wt_apps, pprint, os
     >>> pp = pprint.PrettyPrinter(indent=2, width=120, depth=4)
     >>> apps = wt_apps.WT_Apps()
-    >>>
+    >>> try:
+    ...     from secrets import *
+    ... except ImportError:
+    ...     WT_USER = None
+    ...     WT_PASS = None
+    ...
 
 We are not yet logged in, so we will only see public data.
 
 Retrieve a well known person.
 
-    >>> r = apps.getPerson("Côté-179", "*")
+    >>> r = apps.getPerson("Churchill-4", "*")
     >>> j = r.json()
     >>> pp.pprint(j)
-    [ { 'person': { 'BirthDate': '1644-02-25',
-                    'BirthDateDecade': '1640s',
-                    'BirthLocation': 'Paroisse Notre Dame, Québec, Québec',
-                    'BirthNamePrivate': 'Jean Côté',
-                    'Children': { '3984864': {...},
-                                  '4552796': {...},
-                                  '4678737': {...},
-                                  '4679329': {...},
-                                  '6784208': {...},
-                                  '6784701': {...},
-                                  '7938357': {...},
-                                  '7938361': {...},
-                                  '7938364': {...},
-                                  '7938371': {...},
-                                  '7938381': {...},
-                                  '7938420': {...},
-                                  '7938428': {...},
-                                  '7938434': {...},
-                                  '7938443': {...},
-                                  '7938540': {...},
-                                  '7938547': {...},
-                                  '7938555': {...},
-                                  '7938575': {...},
-                                  '8735045': {...}},
-                    'DeathDate': '1722-03-26',
-                    'DeathDateDecade': '1720s',
-                    'DeathLocation': "L'Ange-Gardien, Montmorency, Qc, Canada",
-                    'Father': 4149374,
-                    'FirstName': 'Jean',
+    [ { 'person': { 'BirthDate': '1874-11-30',
+                    'BirthDateDecade': '1870s',
+                    'BirthLocation': 'Blenheim, Oxfordshire, England',
+                    'BirthNamePrivate': 'Winston Churchill KG OM CH',
+                    'Children': {'5596': {...}, '5597': {...}, '5598': {...}, '5599': {...}, '5600': {...}},
+                    'DeathDate': '1965-01-24',
+                    'DeathDateDecade': '1960s',
+                    'DeathLocation': 'Bladon, Oxfordshire, England',
+                    'Father': 5584,
+                    'FirstName': 'Winston',
                     'Gender': 'Male',
-                    'Id': 4149371,
+                    'Id': 5589,
                     'IsLiving': 0,
-                    'LastNameAtBirth': 'Côté',
-                    'LastNameCurrent': 'Côté',
-                    'LastNameOther': 'Cotte, Costé, dit Le Frisé Landroche',
-                    'LongNamePrivate': 'Jean Côté',
-                    'Manager': 2046555,
-                    'MiddleName': '',
-                    'Mother': 1232214,
-                    'Name': 'Côté-179',
+                    'LastNameAtBirth': 'Churchill',
+                    'LastNameCurrent': 'Churchill',
+                    'LastNameOther': '',
+                    'LongNamePrivate': 'Winston L. Churchill KG OM CH',
+                    'Manager': 4677796,
+                    'MiddleName': 'Leonard Spencer',
+                    'Mother': 5554,
+                    'Name': 'Churchill-4',
                     'Nicknames': '',
-                    'Parents': {'1232214': {...}, '4149374': {...}},
-                    'Photo': 'Cote-179.jpg',
+                    'Parents': {'5554': {...}, '5584': {...}},
+                    'Photo': 'Winston churchill.jpg',
                     'PhotoData': None,
-                    'Prefix': '',
+                    'Prefix': 'Sir',
                     'Privacy': 60,
                     'Privacy_IsAtLeastPublic': True,
                     'Privacy_IsOpen': True,
@@ -78,19 +64,13 @@ Retrieve a well known person.
                     'Privacy_IsPublic': False,
                     'Privacy_IsSemiPrivate': False,
                     'Privacy_IsSemiPrivateBio': False,
-                    'RealName': 'Jean',
-                    'ShortName': 'Jean Côté',
-                    'Siblings': { '1232211': {...},
-                                  '4359580': {...},
-                                  '6228030': {...},
-                                  '7695991': {...},
-                                  '7938274': {...},
-                                  '7938336': {...},
-                                  '7938347': {...}},
-                    'Spouses': {'2071958': {...}, '709705': {...}},
-                    'Suffix': ''},
+                    'RealName': 'Winston',
+                    'ShortName': 'Winston Churchill KG OM CH',
+                    'Siblings': {'5592': {...}},
+                    'Spouses': {'5595': {...}},
+                    'Suffix': 'KG OM CH'},
         'status': 0,
-        'user_name': 'Côté-179'}]
+        'user_name': 'Churchill-4'}]
     >>>
 
 Grab the privacy name/number translation data.
@@ -109,48 +89,50 @@ Grab the privacy name/number translation data.
 
 Download the biography, and display the first two lines
 
-    >>> r = apps.getBio("Côté-179")
+    >>> r = apps.getBio("Churchill-4")
     >>> j = r.json()
     >>> bio = j[0]["bio"]
     >>> j[0]["bio"] = "See below\nfor a few lines\nfrom the bio.\n"
     >>> pp.pprint(j)
-    [{'bio': 'See below\nfor a few lines\nfrom the bio.\n', 'page_name': 'Côté-179', 'status': 0, 'user_id': 4149371}]
+    [{'bio': 'See below\nfor a few lines\nfrom the bio.\n', 'page_name': 'Churchill-4', 'status': 0, 'user_id': 5589}]
     >>>
     >>> print("\n".join([x.strip("\n") for x in bio.split("\n")][:2]))
-    == Biographie ==
-    '''Jean Côté dit le Frisé Landroche (1644 - 1722) aussi connu sous le nom de Costé et Cotte.'''
+    [[Category:This Day In History April 24]]
+    [[Category: This Day In History November 30]] [[Category: This Day In History January 24]] [[Category: British Prime Ministers]] [[Category: World War II Political Leaders]][[Category: Historians]] [[Category: Famous Politicians of the 20th Century]] [[Category: Knights Companion of the Garter]] {{Notables}}
+
     >>>
 
 Get ancestors, depth=1 gives person and parents, depth=2 adds grandparents, etc.
 
-    >>> r = apps.getAncestors("Côté-179", depth=1)
+    >>> r = apps.getAncestors("Churchill-4", depth=1)
     >>> j = r.json()
+    >>> for p in j[0]['ancestors']: del p['Touched'] # changes on read!
     >>> pp.pprint(j)
-    [ { 'ancestors': [ { 'BirthDate': '1644-02-25',
-                         'BirthDateDecade': '1640s',
-                         'BirthLocation': 'Paroisse Notre Dame, Québec, Québec',
-                         'BirthNamePrivate': 'Jean Côté',
-                         'DeathDate': '1722-03-26',
-                         'DeathDateDecade': '1720s',
-                         'DeathLocation': "L'Ange-Gardien, Montmorency, Qc, Canada",
-                         'Father': 4149374,
-                         'FirstName': 'Jean',
+    [ { 'ancestors': [ { 'BirthDate': '1874-11-30',
+                         'BirthDateDecade': '1870s',
+                         'BirthLocation': 'Blenheim, Oxfordshire, England',
+                         'BirthNamePrivate': 'Winston Churchill KG OM CH',
+                         'DeathDate': '1965-01-24',
+                         'DeathDateDecade': '1960s',
+                         'DeathLocation': 'Bladon, Oxfordshire, England',
+                         'Father': 5584,
+                         'FirstName': 'Winston',
                          'Gender': 'Male',
-                         'Id': 4149371,
+                         'Id': 5589,
                          'IsLiving': 0,
                          'IsPerson': 1,
-                         'LastNameAtBirth': 'Côté',
-                         'LastNameCurrent': 'Côté',
-                         'LastNameOther': 'Cotte, Costé, dit Le Frisé Landroche',
-                         'LongNamePrivate': 'Jean Côté',
-                         'Manager': 2046555,
-                         'MiddleName': '',
-                         'Mother': 1232214,
-                         'Name': 'Côté-179',
+                         'LastNameAtBirth': 'Churchill',
+                         'LastNameCurrent': 'Churchill',
+                         'LastNameOther': '',
+                         'LongNamePrivate': 'Winston L. Churchill KG OM CH',
+                         'Manager': 4677796,
+                         'MiddleName': 'Leonard Spencer',
+                         'Mother': 5554,
+                         'Name': 'Churchill-4',
                          'Nicknames': '',
-                         'Photo': 'Cote-179.jpg',
+                         'Photo': 'Winston churchill.jpg',
                          'PhotoData': None,
-                         'Prefix': '',
+                         'Prefix': 'Sir',
                          'Privacy': 60,
                          'Privacy_IsAtLeastPublic': True,
                          'Privacy_IsOpen': True,
@@ -158,33 +140,32 @@ Get ancestors, depth=1 gives person and parents, depth=2 adds grandparents, etc.
                          'Privacy_IsPublic': False,
                          'Privacy_IsSemiPrivate': False,
                          'Privacy_IsSemiPrivateBio': False,
-                         'RealName': 'Jean',
-                         'ShortName': 'Jean Côté',
-                         'Suffix': '',
-                         'Touched': '20161106140612'},
-                       { 'BirthDate': '1602-00-00',
-                         'BirthDateDecade': '1600s',
+                         'RealName': 'Winston',
+                         'ShortName': 'Winston Churchill KG OM CH',
+                         'Suffix': 'KG OM CH'},
+                       { 'BirthDate': '1849-02-13',
+                         'BirthDateDecade': '1840s',
                          'BirthLocation': None,
-                         'BirthNamePrivate': 'Jean Côté',
-                         'DeathDate': '1661-03-27',
-                         'DeathDateDecade': '1660s',
+                         'BirthNamePrivate': 'Randolph Spencer-Churchill',
+                         'DeathDate': '1895-01-24',
+                         'DeathDateDecade': '1890s',
                          'DeathLocation': None,
-                         'Father': 8384551,
-                         'FirstName': 'Jean',
+                         'Father': 5586,
+                         'FirstName': 'Randolph',
                          'Gender': 'Male',
-                         'Id': 4149374,
+                         'Id': 5584,
                          'IsLiving': None,
                          'IsPerson': 1,
-                         'LastNameAtBirth': 'Côté',
-                         'LastNameCurrent': 'Côté',
+                         'LastNameAtBirth': 'Spencer-Churchill',
+                         'LastNameCurrent': 'Spencer-Churchill',
                          'LastNameOther': None,
-                         'LongNamePrivate': 'Jean Côté',
-                         'Manager': 2046555,
-                         'MiddleName': '',
-                         'Mother': 2569903,
-                         'Name': 'Côté-180',
+                         'LongNamePrivate': 'Randolph H. Spencer-Churchill',
+                         'Manager': 5932170,
+                         'MiddleName': 'Henry',
+                         'Mother': 5587,
+                         'Name': 'Spencer-Churchill-1',
                          'Nicknames': None,
-                         'Photo': 'Aubin-42-1.jpg',
+                         'Photo': 'Lord Randolph Churchill.jpg',
                          'PhotoData': None,
                          'Prefix': None,
                          'Privacy': 60,
@@ -194,33 +175,32 @@ Get ancestors, depth=1 gives person and parents, depth=2 adds grandparents, etc.
                          'Privacy_IsPublic': False,
                          'Privacy_IsSemiPrivate': False,
                          'Privacy_IsSemiPrivateBio': False,
-                         'RealName': 'Jean',
-                         'ShortName': 'Jean Côté',
-                         'Suffix': '',
-                         'Touched': '20161215000928'},
-                       { 'BirthDate': '1621-03-23',
-                         'BirthDateDecade': '1620s',
+                         'RealName': 'Randolph',
+                         'ShortName': 'Randolph Spencer-Churchill',
+                         'Suffix': ''},
+                       { 'BirthDate': '1854-01-09',
+                         'BirthDateDecade': '1850s',
                          'BirthLocation': None,
-                         'BirthNamePrivate': 'Anne Martin',
-                         'DeathDate': '1684-12-04',
-                         'DeathDateDecade': '1680s',
+                         'BirthNamePrivate': 'Jennie Jerome CI',
+                         'DeathDate': '1921-06-09',
+                         'DeathDateDecade': '1920s',
                          'DeathLocation': None,
-                         'Father': 0,
-                         'FirstName': 'Anne',
+                         'Father': 5555,
+                         'FirstName': 'Jeanette',
                          'Gender': 'Female',
-                         'Id': 1232214,
+                         'Id': 5554,
                          'IsLiving': None,
                          'IsPerson': 1,
-                         'LastNameAtBirth': 'Martin',
-                         'LastNameCurrent': 'Martin',
+                         'LastNameAtBirth': 'Jerome',
+                         'LastNameCurrent': 'Churchill',
                          'LastNameOther': None,
-                         'LongNamePrivate': 'Anne Martin',
-                         'Manager': 1229367,
+                         'LongNamePrivate': 'Jennie (Jerome) Churchill CI',
+                         'Manager': 4840833,
                          'MiddleName': '',
-                         'Mother': None,
-                         'Name': 'Martin-3448',
+                         'Mother': 5575,
+                         'Name': 'Jerome-1',
                          'Nicknames': None,
-                         'Photo': 'Martin-3448.jpg',
+                         'Photo': 'Lady_Randolph.jpg',
                          'PhotoData': None,
                          'Prefix': None,
                          'Privacy': 60,
@@ -230,46 +210,46 @@ Get ancestors, depth=1 gives person and parents, depth=2 adds grandparents, etc.
                          'Privacy_IsPublic': False,
                          'Privacy_IsSemiPrivate': False,
                          'Privacy_IsSemiPrivateBio': False,
-                         'RealName': 'Anne',
-                         'ShortName': 'Anne Martin',
-                         'Suffix': '',
-                         'Touched': '20161101230248'}],
+                         'RealName': 'Jennie',
+                         'ShortName': 'Jennie (Jerome) Churchill CI',
+                         'Suffix': 'CI'}],
         'status': 0,
-        'user_name': 'Côté-179'}]
+        'user_name': 'Churchill-4'}]
     >>>
 
 Get relatives, just the spouses and siblings in this case.
 
     >>> pp = pprint.PrettyPrinter(indent=2, width=120, depth=5)
-    >>> r = apps.getRelatives("Côté-179", getSpouses=1, getSiblings=1)
+    >>> r = apps.getRelatives("Churchill-4", getSpouses=1, getSiblings=1)
     >>> j = r.json()
+    >>> # for p in j[0]['items']: del p['Touched'] # changes on read!
     >>> pp.pprint(j)
-    [ { 'items': [ { 'key': 'Côté-179',
-                     'person': { 'BirthDate': '1644-02-25',
-                                 'BirthDateDecade': '1640s',
-                                 'BirthLocation': 'Paroisse Notre Dame, Québec, Québec',
-                                 'BirthNamePrivate': 'Jean Côté',
-                                 'DeathDate': '1722-03-26',
-                                 'DeathDateDecade': '1720s',
-                                 'DeathLocation': "L'Ange-Gardien, Montmorency, Qc, Canada",
-                                 'Father': 4149374,
-                                 'FirstName': 'Jean',
+    [ { 'items': [ { 'key': 'Churchill-4',
+                     'person': { 'BirthDate': '1874-11-30',
+                                 'BirthDateDecade': '1870s',
+                                 'BirthLocation': 'Blenheim, Oxfordshire, England',
+                                 'BirthNamePrivate': 'Winston Churchill KG OM CH',
+                                 'DeathDate': '1965-01-24',
+                                 'DeathDateDecade': '1960s',
+                                 'DeathLocation': 'Bladon, Oxfordshire, England',
+                                 'Father': 5584,
+                                 'FirstName': 'Winston',
                                  'Gender': 'Male',
-                                 'Id': 4149371,
+                                 'Id': 5589,
                                  'IsLiving': 0,
                                  'IsPerson': 1,
-                                 'LastNameAtBirth': 'Côté',
-                                 'LastNameCurrent': 'Côté',
-                                 'LastNameOther': 'Cotte, Costé, dit Le Frisé Landroche',
-                                 'LongNamePrivate': 'Jean Côté',
-                                 'Manager': 2046555,
-                                 'MiddleName': '',
-                                 'Mother': 1232214,
-                                 'Name': 'Côté-179',
+                                 'LastNameAtBirth': 'Churchill',
+                                 'LastNameCurrent': 'Churchill',
+                                 'LastNameOther': '',
+                                 'LongNamePrivate': 'Winston L. Churchill KG OM CH',
+                                 'Manager': 4677796,
+                                 'MiddleName': 'Leonard Spencer',
+                                 'Mother': 5554,
+                                 'Name': 'Churchill-4',
                                  'Nicknames': '',
-                                 'Photo': 'Cote-179.jpg',
+                                 'Photo': 'Winston churchill.jpg',
                                  'PhotoData': None,
-                                 'Prefix': '',
+                                 'Prefix': 'Sir',
                                  'Privacy': 60,
                                  'Privacy_IsAtLeastPublic': True,
                                  'Privacy_IsOpen': True,
@@ -277,26 +257,26 @@ Get relatives, just the spouses and siblings in this case.
                                  'Privacy_IsPublic': False,
                                  'Privacy_IsSemiPrivate': False,
                                  'Privacy_IsSemiPrivateBio': False,
-                                 'RealName': 'Jean',
-                                 'ShortName': 'Jean Côté',
+                                 'RealName': 'Winston',
+                                 'ShortName': 'Winston Churchill KG OM CH',
                                  'Siblings': {...},
                                  'Spouses': {...},
-                                 'Suffix': '',
-                                 'Touched': '20161106140612'},
-                     'user_id': 4149371,
-                     'user_name': 'Côté-179'}],
+                                 'Suffix': 'KG OM CH',
+                                 'Touched': '20170211033528'},
+                     'user_id': 5589,
+                     'user_name': 'Churchill-4'}],
         'status': 0}]
     >>>
 
 Try to retrieve the FamilySearch connections. This will fail because we are not logged in.
 
-    >>> r = apps.getPersonFSConnections("Côté-179")
+    >>> r = apps.getPersonFSConnections("Churchill-4")
     >>> j = r.json()
     >>> pp.pprint(j)
-    [{'status': 'Permission denied', 'user_name': 'Côté-179'}]
+    [{'status': 'Permission denied', 'user_name': 'Churchill-4'}]
     >>>
 
-Illustrate loggin failure.
+Illustrate login failure.
 Use an invalid password, so as to see the error result.
 
     >>> r = apps.login("MissingSurname-1", "InvalidPassword")
@@ -308,10 +288,10 @@ Use an invalid password, so as to see the error result.
 Try logging in with user and password from environment.
 Provide your own WikiTree.com credentials.
 Use "SET WT_USER=your_user_id" or "export WT_USER=your_user_id", etc.
+Or create a "secrets.py" file with lines with WT_USER=your_user_id, etc.
 
-    >>> wt_user = os.environ.get("WT_USER", "WT_USER")
-    >>> wt_pass = os.environ.get("WT_PASS", "WT_PASS")
-
+    >>> wt_user = os.environ.get("WT_USER", WT_USER)
+    >>> wt_pass = os.environ.get("WT_PASS", WT_PASS)
     >>> r = apps.login(wt_user, wt_pass)
     >>> j = r.json()
     >>> del j['login']['token']  # hide the token (it won't match)
@@ -323,10 +303,10 @@ Use "SET WT_USER=your_user_id" or "export WT_USER=your_user_id", etc.
 
 Try to retrieve the FamilySearch connections while logged in.
 
-    >>> r = apps.getPersonFSConnections("Côté-179")
+    >>> r = apps.getPersonFSConnections("Churchill-4")
     >>> j = r.json()
     >>> pp.pprint(j)
-    [{'status': 'Permission denied', 'user_name': 'Côté-179'}]
+    [{'status': 'Permission denied', 'user_name': 'Churchill-4'}]
     >>>
 
 Illustrate logging off.
