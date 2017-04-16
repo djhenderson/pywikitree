@@ -25,7 +25,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1.0',
+    version='0.1.3',
 
     description='A Python interface to the WikiTree Apps API',
     long_description=long_description,
@@ -46,11 +46,13 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',
+        'Intended Audience :: Genealogists',
         'Topic :: Software Development :: Build Tools',
+        'Topic :: Software Development :: Genealogy',
 
         # Pick your license as you wish (should match "license" above)
         'License :: OSI Approved :: LGPL License',
@@ -64,6 +66,7 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
 
     # What does your project relate to?
