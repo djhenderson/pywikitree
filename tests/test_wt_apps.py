@@ -1,6 +1,8 @@
 #! python3
 # -*- coding:utf-8 -*-
 
+# test the WikiTree apps interface
+
 from __future__ import print_function, unicode_literals
 
 import pprint
@@ -19,20 +21,28 @@ except ImportError:
         sys.path.append("..")  # assume running in pywikitree/tests
     from wt_apps import WT_Apps
 
+try:
+    from secrets import *
+except ImportError:
+    WT_USER = None
+    WT_PASS = None
+
 pp = pprint.PrettyPrinter(indent=2, width=120, depth=4)
 
 url = "https://apps.wikitree.com/api.php"
 
-apps = WT_Apps(url=url, default_format="json", verbosity=2)  # json | xmlfm
+default_format = "json"
+verbosity = 2
+apps = WT_Apps(url=url, default_format=default_format, verbosity=verbosity)  # json | xmlfm
 
-try_key = "Henderson-6225"  # Thomas Henderson
-#try_key = "Côté-179"  # Jean Côté
+try_key = "Henderson-6225"  # Thomas Henderson (my grand father)
+try_key = "Henderson-7140"  # James Henderson (my great grand father)
+try_key = "Churchill-4"  #  Sir Winston Leonard Spencer Churchill KG OM CH
 
 try_keys = [try_key]
 
 blank_fields = [f.strip() for f in """\
 BirthDate, BirthLocation, BirthNamePrivate,
-Creator,
 DeathDate, DeathLocation,
 Father, FirstName,
 Gender,
@@ -44,15 +54,16 @@ Photo, PhotoData, Prefix,
 RealName,
 ShortName, Suffix
 """.split(",")]
+blank_fields.sort()
 
 star_fields = [f.strip() for f in """\
-BirthDate, BirthDateDecade, BirthLocation, BirthName, BirthNamePrivate,
-Children, Creator,
+BirthDate, BirthDateDecade, BirthLocation, BirthNamePrivate,
+Children,
 DeathDate, DeathDateDecade, DeathLocation,
 Father, FirstName,
 Gender,
 Id, IsLiving,
-LastNameAtBirth, LastNameCurrent, LastNameOther, LongName, LongNamePrivate,
+LastNameAtBirth, LastNameCurrent, LastNameOther, LongNamePrivate,
 Manager, MiddleName, Mother,
 Name, Nicknames,
 Parents, Photo, PhotoData, Prefix,
@@ -61,16 +72,26 @@ Privacy_IsPublic, Privacy_IsSemiPrivate, Privacy_IsSemiPrivateBio,
 RealName,
 ShortName, Siblings, Spouses, Suffix
 """.split(",")]
+star_fields.sort()
 
 all_fields = [f.strip() for f in """\
-Id, Name, FirstName, MiddleName, LastNameAtBirth, LastNameCurrent,
-Nicknames, LastNameOther, RealName, Prefix, Suffix,
-Gender, BirthDate, DeathDate, BirthLocation, DeathLocation,
-BirthDateDecade, DeathDateDecade, Photo, IsLiving, Privacy,
-Mother, Father, Parents, Children, Siblings, Spouses,
-Derived.ShortName, Derived.BirthNamePrivate, Derived.LongNamePrivate,
-Creator, Manager, Touched
+BirthDate, BirthDateDecade, BirthLocation,
+Children,
+DeathDate, DeathDateDecade, DeathLocation,
+Derived.BirthNamePrivate, Derived.LongNamePrivate, Derived.ShortName,
+Father, FirstName,
+Gender,
+Id, IsLiving,
+LastNameAtBirth, LastNameCurrent, LastNameOther,
+Manager, MiddleName, Mother,
+Name, Nicknames,
+Parents, Photo, PhotoData, Prefix,
+Privacy, Privacy_IsAtLeastPublic, Privacy_IsOpen, Privacy_IsPrivate,
+Privacy_IsPublic, Privacy_IsSemiPrivate, Privacy_IsSemiPrivateBio,
+RealName,
+Siblings, Spouses, Suffix
 """.split(",")]
+all_fields.sort()
 
 rel_fields = "Children,Parents,Siblings,Spouses".split(',')
 
@@ -112,8 +133,8 @@ def try_login():
     header("login")
 
     # provide your own WikiTree.com credentials
-    wt_user = os.environ.get("WT_USER", "WT_USER")
-    wt_pass = os.environ.get("WT_PASS", "WT_PASS")
+    wt_user = os.environ.get("WT_USER", WT_USER)
+    wt_pass = os.environ.get("WT_PASS", WT_PASS)
 
     r = apps.login(wt_user, wt_pass)
     hr()
@@ -133,7 +154,7 @@ def try_login():
     hr()
 
 
-def try_getPerson():
+def try_getPersonJSON():
 
     header("getPerson")
 
@@ -152,6 +173,7 @@ def try_getPerson():
         print("v" * 80)
         print(r.text)
         print("^" * 80)
+        raise
     except Exception as e:
         print("Exception:", e)
         raise
@@ -162,6 +184,63 @@ def try_getPerson():
     print('j[0]["person"].keys()', sorted(j[0]["person"].keys()))
     pp.pprint(j)
     hr()
+
+    if fields == '':
+        s_fields = s_blank_fields = set(blank_fields)
+    elif fields == '*':
+        s_fields = s_star_fields = set(star_fields)
+    else:
+        s_fields = s_all_fields = set(all_fields)
+
+    r_fields = set(j[0]['person'].keys())
+
+    common = r_fields.intersection(s_fields)
+    not_rcvd = s_fields.difference(r_fields)
+    not_rqst= r_fields.difference(s_fields)
+
+    print("\n   fields:", fields)
+    print("\n s_fields:", sorted(list(s_fields)))
+    print("\n   common:", sorted(list(common)))
+    print("\n not_rcvd:", sorted(list(not_rcvd)))
+    print("\n not_rqst:", sorted(list(not_rqst)))
+    hr()
+
+def try_getPersonXML():
+
+    header("getPerson")
+
+    try_key = 5589 # Churchill-4
+
+    fields = ''
+    # fields = "*"
+    # fields = ','.join(all_fields)
+
+    r = apps.getPerson(try_key, fields)
+    hr()
+
+    print("type(r):", type(r))
+    print("r:", r)
+
+    try:
+        j = r.text
+    except Exception as e:
+        print("Exception:", e)
+        raise
+
+    print("type(j):", type(j))
+    print("j:", j)
+    # print("j[]:", [type(jj) for jj in j])
+    # print("j[0].keys()", list(j[0].keys()))
+    # print('j[0]["person"].keys()', sorted(j[0]["person"].keys()))
+    pp.pprint(j)
+    hr()
+
+
+def try_getPerson():
+    if default_format == "json":
+        try_getPersonJSON()
+    else:
+        try_getPersonXML()
 
 
 def try_getPrivacyLevels():
@@ -331,6 +410,7 @@ def try_logout():
     apps.logout()
     hr()
 
+
 if __name__ == '__main__':
 
     def main():
@@ -339,16 +419,16 @@ if __name__ == '__main__':
         # pp.pprint(apps._session.headers)
         # hr()
         # try_help()  #
-        try_login()  #
-        try_getPerson()  # try_key
+        # try_login()  #
+        # try_getPerson()  # try_key
         # try_getPrivacyLevels()  #
         # try_getBio()  # try_key
         # try_getWatchlist()  #
         # try_getProfile()  # try_key
-        # try_getAncestors()  # try_key
+        try_getAncestors()  # try_key
         # try_getAncestorsFields()  # try_key
         # try_getRelatives()  # try_keys
         # try_getPersonFSConnections()  # try_key
-        try_logout()  #
+        # try_logout()  #
 
     main()
