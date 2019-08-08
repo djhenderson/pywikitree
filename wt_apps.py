@@ -57,7 +57,7 @@ class WT_Apps(object):
     # class members
     __privacy_init = False
     __Privacy2Levels = {}
-    __LevelsPrivacy = {}
+    __Levels2Privacy = {}
 
     @classmethod
     def Privacy2Level(cls, privacy):
