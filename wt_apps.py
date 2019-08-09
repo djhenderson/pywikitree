@@ -7,13 +7,15 @@ wt_apps.py provides an interface to the WikiTree APPS API.
 This code is designed to work with
 Python 2.7
 and
-Python 3.4, 3.5 and 3.6.
+Python 3.4, 3.5, 3.6 and 3.7.
 
 It has been tested
 on cygwin
     with python2 2.7.13 and python3 3.6.1
 and on Windows 7
     with python 2.7.13, and python 3.6.1
+and on Ubuntu Linux 18.04LTS
+    with python 3.7
 """
 
 from __future__ import print_function, unicode_literals
@@ -57,7 +59,7 @@ class WT_Apps(object):
     # class members
     __privacy_init = False
     __Privacy2Levels = {}
-    __LevelsPrivacy = {}
+    __Levels2Privacy = {}
 
     @classmethod
     def Privacy2Level(cls, privacy):
