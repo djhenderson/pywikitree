@@ -50,7 +50,7 @@ class WT_Apps(object):
     """WikiTree Apps interface
     """
 
-    _url = "https://apps.wikitree.com/api.php"
+    _url = "https://api.wikitree.com/api.php"
     _default_format = "json"
     _format = _default_format
     _session = None
