@@ -1,3 +1,9 @@
+There have been a number of breaking changes in the WikiTree API, which has broken this package.
+
+
+
+
+
 This package is a Python interface to the WikiTree Apps API
 
 Currently, documentation is contained in docstrings in the source.
